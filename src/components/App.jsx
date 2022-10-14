@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { nanoid } from 'nanoid';
 import { Notify } from 'notiflix';
 
-import { ContactForm } from './AddedForm/AddContacts';
 import { Filter } from './Filter/Filter';
 import { ContactList } from './ContactList/ContactList';
-
+import { Section } from './Section/Section';
+import PhoneBookForm from './AddedForm/AddContacts';
 export class Phonebook extends Component {
   initialValues = [
     { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
@@ -16,8 +16,6 @@ export class Phonebook extends Component {
   state = {
     contacts: [...this.initialValues],
     filter: '',
-    name: '',
-    number: '',
   };
 
   handleChange = e => {
@@ -26,21 +24,17 @@ export class Phonebook extends Component {
     this.setState({ [name]: value });
   };
 
-  addContact = e => {
-    e.preventDefault();
+  addContact = ({ name, number }) => {
     const findSameContact = this.state.contacts.find(
-      el => el.name.toLocaleLowerCase() === this.state.name.toLocaleLowerCase()
+      el => el.name.toLocaleLowerCase() === name.toLocaleLowerCase()
     );
     if (!findSameContact) {
       this.setState({
-        contacts: [
-          { name: this.state.name, number: this.state.number, id: nanoid() },
-          ...this.state.contacts,
-        ],
+        contacts: [{ name, number, id: nanoid() }, ...this.state.contacts],
       });
       this.setState({ name: '', number: '' });
     } else {
-      Notify.warning(`${this.state.name} is already in contacts.`);
+      Notify.warning(`${name} is already in contacts.`);
     }
   };
 
@@ -62,19 +56,19 @@ export class Phonebook extends Component {
   render() {
     return (
       <div>
-        <h1>Phonebook</h1>
-        <ContactForm
-          name={this.state.name}
-          number={this.state.number}
-          onHandleChange={this.handleChange}
-          onAddContact={this.addContact}
-        />
-        <h2>Contacts</h2>
-        <Filter onHandleChange={this.handleChange} filter={this.state.filter} />
-        <ContactList
-          filterList={this.filterContacts}
-          onDeleteContact={this.deleteContact}
-        />
+        <Section title="Phonebook">
+          <PhoneBookForm onContactAdd={this.addContact} />
+        </Section>
+        <Section title="Contacts">
+          <Filter
+            onHandleChange={this.handleChange}
+            filter={this.state.filter}
+          />
+          <ContactList
+            filterList={this.filterContacts}
+            onDeleteContact={this.deleteContact}
+          />
+        </Section>
       </div>
     );
   }
